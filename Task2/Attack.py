@@ -3,7 +3,8 @@ import json
 import math
 import requests
 import secrets
-import sys
+
+FORBIDDEN_SUBSTRINGS = [b'grade', b'12', b'twelve', b'tolv']
 
 def get_pk(base_url): 
     pk = requests.get(
@@ -13,34 +14,6 @@ def get_pk(base_url):
     N = pk.json()['N']
 
     return e, N
-
-def sign_message(base_url, message: bytes):
-    data = message.hex()
-    url = f"{base_url}/sign_random_document_for_students/{data}/"
-    response = requests.get(url)
-    try:
-        return response.json()
-    except requests.exceptions.JSONDecodeError:
-        raise RuntimeError(
-            f"Non-JSON response from {url} (status {response.status_code}): {response.text}"
-        )
-
-def build_grade_cookie(msg_bytes: bytes, sig_bytes: bytes) -> str:
-    payload = {
-        "msg": msg_bytes.hex(),
-        "signature": sig_bytes.hex(),
-    }
-
-    json_as_bytes = json.dumps(payload).encode()
-    base64_as_bytes = base64.b64encode(json_as_bytes, altchars=b'-_')
-    return base64_as_bytes.decode()
-
-def forge_cookie(base_url, msg_bytes: bytes, sig_bytes: bytes):
-    cookie_value = build_grade_cookie(msg_bytes, sig_bytes)
-    response = requests.get(f"{base_url}/quote/", cookies={"grade": cookie_value})
-    return response.text
-
-FORBIDDEN_SUBSTRINGS = [b'grade', b'12', b'twelve', b'tolv']
 
 def blindingfactor(n: int) -> int:
     """Pick a random r with gcd(r, n) == 1."""
@@ -63,6 +36,27 @@ def safe_blinded_message(n: int, e: int, target_msg: bytes) -> tuple[int, bytes]
         if any(x in blinded_bytes for x in FORBIDDEN_SUBSTRINGS):
             continue
         return r, blinded_bytes
+
+def sign_message(base_url, message: bytes):
+    data = message.hex()
+    url = f"{base_url}/sign_random_document_for_students/{data}/"
+    response = requests.get(url)
+    return response.json()
+
+def build_grade_cookie(msg_bytes: bytes, sig_bytes: bytes) -> str:
+    payload = {
+        "msg": msg_bytes.hex(),
+        "signature": sig_bytes.hex(),
+    }
+
+    json_as_bytes = json.dumps(payload).encode()
+    base64_as_bytes = base64.b64encode(json_as_bytes, altchars=b'-_')
+    return base64_as_bytes.decode()
+
+def forge_cookie(base_url, msg_bytes: bytes, sig_bytes: bytes):
+    cookie_value = build_grade_cookie(msg_bytes, sig_bytes)
+    response = requests.get(f"{base_url}/quote/", cookies={"grade": cookie_value})
+    return response.text
 
 def main():
     base_url = 'http://localhost:5000'
