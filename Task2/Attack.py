@@ -65,7 +65,9 @@ def safe_blinded_message(n: int, e: int, target_msg: bytes) -> tuple[int, bytes]
         return r, blinded_bytes
 
 def main():
-    e, n = get_pk('http://localhost:5000')
+    base_url = 'http://localhost:5000'
+
+    e, n = get_pk(base_url)
     n = int(n)
     e = int(e)
 
@@ -73,8 +75,6 @@ def main():
 
     r, candidate_bytes = safe_blinded_message(n, e, target_msg)
     signed = sign_message(base_url, candidate_bytes)
-    if "error" in signed:
-        raise RuntimeError(signed["error"])
     sig_blinded = int.from_bytes(bytes.fromhex(signed["signature"]), 'big')
     target_sig_int = (sig_blinded * modinv(r, n)) % n
     target_sig_bytes = target_sig_int.to_bytes(len(candidate_bytes), 'big')
