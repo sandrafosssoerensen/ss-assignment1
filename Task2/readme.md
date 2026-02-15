@@ -1,6 +1,6 @@
-# RSA Signatures
+# Assignment 1 
 
-### Task 2: Exploiting Textbook RSA Signatures
+### RSA Signatures - Task 2: Exploiting Textbook RSA Signatures
 
 You are given the source code of a simple website that a professor has created
 to automate annoying tasks such as grading. It also distributes quotes to
@@ -15,42 +15,6 @@ properties of plain, textbook RSA.
 
 To get started with the task, you can host a local version on your own machine (see below).
 Afterwards, you can attack a version of the website hosted [here](https://rsasig.syssec.dk).
-
-
-### Task 3: Implementing RSA-PSS
-
-_Disclaimer_: If you use LLMs to generate part of the code in this task, prepare to defend their choices in your report. You also must disclose this usage, as per university guidelines.
-
-Textbook RSA signatures are not secure. An attacker is able to obtain
-signatures for messages that were never signed as such.
-To prevent such attacks, padding schemes can be used.  One of such is PSS
-(Probabilistic Signature Scheme).
-
-The part of the assignment requires the implementation of the RSA-PSS according
-to [RFC8017](https://datatracker.ietf.org/doc/html/rfc8017#section-8.1) using
-SHA-256 as hash and mask generation function, and a salt length of 32 bytes.
-
-The objective of this assignment is to implement support for the key generation,
-signing and signature verification operations, such that the resulting
-cryptosystem is consistent and able to verify its own signatures.
-
-In your implementation, you should target a security level of 128 bits, i.e.,
-use RSA moduli of size 3072 bits.  You are allowed to use library functions
-such as random number generators and mathematical subroutines to generate primes (of course you
-cannot just wrap an existing library for RSA), but you need to document and
-justify you decisions with respect to security.  Especially, be careful when
-selecting the random number generator for key generation, as to avoid the
-pitfalls discussed in class. If encoding/decoding of messages presents a challenge, you
-can reuse existing code as well, or read the [IEEE P1363 specification](https://web.archive.org/web/20170810025803/http://grouper.ieee.org/groups/1363/P1363a/contributions/pss-submission.pdf) for reference.
-For reference, the German Wikipedia has some [good pictures](https://de.wikipedia.org/wiki/Probabilistic_Signature_Scheme) of the RSA-PSS encoding/decoding functions.
-
-Any high-level programming language will suffice. Immediate suggestions are
-Python, for its native support for arbitrary-precision integers, byte strings,
-and its extensive standard library; Java, due to its library support for
-multi-precision integers; or the combination of the C programming language with
-the GMP library.
-
-
 
 ## Running the Service Locally
 
