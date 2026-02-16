@@ -61,20 +61,28 @@ def forge_cookie(base_url, msg_bytes: bytes, sig_bytes: bytes):
 def main():
     base_url = 'http://localhost:5000'
 
+    # Retrieve public key
     e, n = get_pk(base_url)
     n = int(n)
     e = int(e)
 
+    # Define forbidden target message
     target_msg = b"You got a 12 because you are an excellent student! :)"
 
+    # Blind the message to bypass filtering
     r, candidate_bytes = safe_blinded_message(n, e, target_msg)
+
+    # Obtain signature on blinded message
     signed = sign_message(base_url, candidate_bytes)
     sig_blinded = int.from_bytes(bytes.fromhex(signed["signature"]), 'big')
+
+    # Unblind the signature
     target_sig_int = (sig_blinded * modinv(r, n)) % n
     target_sig_bytes = target_sig_int.to_bytes(len(candidate_bytes), 'big')
 
-    result = forge_cookie(base_url, target_msg, target_sig_bytes)
-    print(result)
+    # Submit forged signature
+    quote = forge_cookie(base_url, target_msg, target_sig_bytes)
+    print(quote)
 
 if __name__ == '__main__':
     main()
